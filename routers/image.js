@@ -2,6 +2,7 @@ const { Router, response } = require("express");
 const Image = require("../models").image;
 const router = new Router();
 const { toData } = require("../auth/jwt"); // because there is more exported, take that one thing you need.
+const authMiddleware = require("../auth/middelware");
 
 router.get("/", (request, response) => response.send([Image]));
 
@@ -36,6 +37,16 @@ router.get("/auth/messy", async (req, res, next) => {
     res.status(401).send({
       message: "Please supply some valid credentials",
     });
+  }
+});
+
+// importing the middleware
+router.get("/", authMiddleware, async (req, res, next) => {
+  try {
+    const allImages = await Image.findAll();
+    res.json(allImages);
+  } catch (e) {
+    next(e);
   }
 });
 
